@@ -240,3 +240,108 @@ Ich kreiere lokal ein neues Feature für das Projekt.
    ```bash
    cd <Repository-Name>
    ```
+
+## neues Lokales Repo mit existierendem GitHub Repo verknüpfen
+
+- wechsele in das Verzeichnis in welchem Du Dein neues Repo anlegen möchtest
+- Repo initialisieren
+  ```bash
+  git init
+  ```
+------------
+Exkurs:
+aus modernen Gründen wird heute nicht mehr 'master' als Hauptbranch gerne verwendet sondern in zwischen 'main'
+Beim Anlegen eines neuen Repositories wird aber meist immer noch 'master' verwendet. Es gibt drei Möglichkeiten dies zu ändern
+1. global in der config:
+   `git config --global init.defaultBranch main`
+2. während der initialisierung des Repositories
+   `git init -b main`
+3. Master in main umbennen
+   `git branch -m main`
+------------
+
+- lokales repo mit online Repo verbinden (Github)
+  - auf GitHub im Repo die 'HTTPS' Adresse kopieren
+  - lokal folgenden Befehl eingeben
+  - `git remote add origin <URL>`
+
+- Inhalte aus GitHub auf lokales Repo ziehen.
+  - `git pull (origin main)`
+  - evtl. werdet ihr nach Eurem GitHub-Usernamen und dem Token-Passwort gefragt
+  - solltet ihr nach dem 'pull' keine Inhalte sehen müsst ihr nochmal den Branch wechseln
+    - `git branch main`
+
+
+## Git Merge Konflikte
+
+1. Vorbereitung
+   1. Erstelle neues Git-Repository oder wechsel in ein vorhandes
+   2. Erselle eine neue Datei und füge Inhalte hinzu
+   3. Stage und commite die Datei
+      ```bash
+      git add new_file.txt
+      git commit -m "neue Datei erstellt"
+      ```
+   4. Erstelle neuen 'feature' Branch und wechsel in diesen
+      ```bash
+      git checkout -b feature
+      ```
+2. Änderung in beiden Branches vornehmen
+   1. im 'feature'-Branch ändere new_file.txt
+   2. Stage und commite die Änderungen.
+      ```bash
+      # im feature Branch
+      git add new_file.txt
+      git commit -m "changes in feature branch"
+      ```
+   3. Wechsle nun zurück zum 'main'-Branch
+      ```bash
+      git switch main
+      ```
+   4. Im 'main'-Branch mache nun ebenfalls Änderungen (aber andere) in der Datei
+   5. Stage und commite die Änderungen dort ebenfalls
+      ```bash
+      # im 'main'-Branch
+      git add new_file.txt
+      git commit -m "changes in main branch"
+      ```
+3. Merge Versuch
+   1. **HINWEIS**: Es wird immer von dem Branch aus der Merge initialiert, in welchen ein anderer Branch integriert werden soll. Meistens will man in 'main' integrieren, also wird auch meistens von diesem Branch aus der Merge initialisiert
+   2. Merge feature Branch in main Branch
+   ```bash
+   # im main branch
+   git merge feature 
+   ```
+   3. Git weist Dich nun darauf hin, dass es den Merge nicht ausführen kann, da es zu einem Konflikt in der 'new_file.txt' gekommen ist. Heißt. Git hat zwei Unterschiedliche Versionen von dieser Datei und weiß nicht wie es diese behandeln soll
+   ```bash
+   Auto-merging new_file.txt
+   CONFLICT (content): Merge conflict in new_file.txt
+   ```
+4. Konflikt auflösen
+   1. Git wird Dir nun beide Versionen der new_file.txt in der Datei anzeigen. Wenn Du die Datei in einem Editor nun öffnest wird sie folgendermaßen ausschauen
+   ```bash
+   Zeile 1
+   <<<<<<<<<< HEAD
+   Änderung auf main-Branch
+   ==========
+   Änderung auf feature-Branch
+   >>>>>>>>> feature
+   ```
+   2. Du musst die Datei manuell bearbeiten, um zu entscheiden, welche Änderungen beibehalten werden sollen. Du kannst entweder eine der beiden Versionen übernehmen oder die Änderungen zusammenführen.
+   ```bash
+   Zeile 1
+   Änderung auf main-Branch
+   Änderung auf feature-Branch
+   ```
+5. Konflikt als gelöst markieren
+   1. Wenn Du die Datei(en) manuell nun geändert hast musst Du diese als gelöst für Git markieren.
+   2. Dies machst Du in dem Du die Datei(en) nochmal Staged und commitest
+   ```bash
+   # immer noch im main branch
+   git add new_file.txt
+   git commit -m "Conflict solved successfully and finished merge"
+   ```
+6. Schließlich kannst Du schauen ob der Merge erfolgreich war und den Verlauf Deiner Commits überprüfen
+   ```bash
+   git log --oneline --graph
+   ```
